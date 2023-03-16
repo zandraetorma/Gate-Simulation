@@ -1,0 +1,96 @@
+{
+	"info": {
+		"_postman_id": "7ec0ed16-6b10-4a66-a7ba-1162be50e0d2",
+		"name": "BULK",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25841099"
+	},
+	"item": [
+		{
+			"name": "Create Appointment",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if(!pm.variables.get(\"gateMissionTypeCode2\")){\r",
+							"    //if gateMissionTypeCode2 is empty, remove the second mission object\r",
+							"    var data = JSON.parse(pm.request.body);\r",
+							"    data.missions.splice(1, 2);\r",
+							"    pm.request.body = JSON.stringify(data);\r",
+							"}\r",
+							"\r",
+							"\r",
+							"// if you have 3 missions, use the script below. Just add another variable and change 2nd parameter in splice to 3 if you have 4 missions\r",
+							"// if(!pm.variables.get(\"gateMissionTypeCode2\") || !pm.variables.get(\"gateMissionTypeCode3\")){\r",
+							"//     //if gateMissionTypeCode2 is empty, remove the second mission object\r",
+							"//     var data = JSON.parse(pm.request.body);\r",
+							"//     data.missions.splice(1, 2);\r",
+							"//     pm.request.body = JSON.stringify(data);\r",
+							"// }"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "z.sessionToken",
+						"value": "88ce5f8a-ed8d-41dd-9f2b-3999ce5b9634",
+						"type": "text"
+					},
+					{
+						"key": "z.currentDataScope",
+						"value": "LQN",
+						"type": "text"
+					},
+					{
+						"key": "z.locale",
+						"value": "en",
+						"type": "text"
+					},
+					{
+						"key": "z.ip",
+						"value": "127.0.0.1",
+						"type": "text"
+					},
+					{
+						"key": "z.userId",
+						"value": "LQNQA02",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"apptNbr\": \"{{apptNbr}}\",\r\n  \"truckCompanyCode\": \"{{truckCompanyCode}}\",\r\n  \"truckLicenseNbr\": \"{{truckLicenseNbr}}\",\r\n  \"driverId\": \"{{driverId}}\",\r\n  \"remarks\":\"{{remarks}}\",\r\n  \"apptTime\": \"{{apptTime}}\",\r\n  \"apptDeadline\": \"{{apptDeadline}}\",\r\n  \"missions\": [\r\n    {\r\n      \"gateMissionTypeCode\": \"{{gateMissionTypeCode1}}\",\r\n      \"gateScenarioCode\": \"{{gateScenarioCode1}}\",\r\n      \"bookingNbr\": \"{{bookingNbr1}}\",\r\n      \"bookingOperator\": \"{{bookingOperator1}}\",\r\n      \"eqpNbr\": \"{{eqpNbr1}}\",\r\n      \"cntrType\": \"{{cntrType1}}\",\r\n      \"operator\": \"{{operator1}}\",\r\n      \"docList\": [\r\n          {\r\n          \"docTypeCode\": \"{{docTypeCode1}}\",\r\n          \"docReferenceNbr\": \"{{docReferenceNbr1}}\" \r\n          }\r\n      ]\r\n    },\r\n    {\r\n      \"gateMissionTypeCode\": \"{{gateMissionTypeCode2}}\",\r\n      \"gateScenarioCode\": \"{{gateScenarioCode2}}\",\r\n      \"bookingNbr\": \"{{bookingNbr2}}\",\r\n      \"bookingOperator\": \"{{bookingOperator2}}\",\r\n      \"eqpNbr\": \"{{eqpNbr2}}\",\r\n      \"cntrType\": \"{{cntrType2}}\",\r\n      \"operator\": \"{{operator2}}\",\r\n      \"docList\": [\r\n          {\r\n          \"docTypeCode\": \"{{docTypeCode2}}\",\r\n          \"docReferenceNbr\": \"{{docReferenceNbr2}}\" \r\n          }\r\n      ]\r\n    }\r\n  ]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://zodiacappqa.lqn.zodiac-cloud.com/zodiac/api/v2/truck-visits/appointments/create",
+					"protocol": "https",
+					"host": [
+						"zodiacappqa",
+						"lqn",
+						"zodiac-cloud",
+						"com"
+					],
+					"path": [
+						"zodiac",
+						"api",
+						"v2",
+						"truck-visits",
+						"appointments",
+						"create"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
