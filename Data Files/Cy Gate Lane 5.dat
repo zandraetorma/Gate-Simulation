@@ -6,7 +6,7 @@
    <containsHeaders>true</containsHeaders>
    <csvSeperator></csvSeperator>
    <dataFileGUID>f7a31fc1-856b-4b13-b4a7-13f1cc85efef</dataFileGUID>
-   <dataSourceUrl>C:\Users\F1557\Katalon Studio\Gate Simulation\Test Data\CY Gate Lane 4.xlsx</dataSourceUrl>
+   <dataSourceUrl>C:\Katalon Automation Tool\Gate-Simulation\Test Data\CY Gate Lane 5.xlsx</dataSourceUrl>
    <driver>ExcelFile</driver>
    <isInternalPath>false</isInternalPath>
    <query></query>
