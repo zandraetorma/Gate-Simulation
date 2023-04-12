@@ -124,7 +124,7 @@ Thread t6 = new Thread(new Runnable() {
 
 //Add the thread you want to start
 t1.start()
-t2.start()
+//t2.start()
 //t3.start()
 //t4.start()
 //t5.start()
@@ -163,20 +163,20 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 		   
 		
 		// i represent row number
-		int i = 1;
+		int i = 2;
 		while (i <= rowsOfData) {
 			//Get values from current row
 			
-			String startTime  = findTestData(laneTestData).getValue(2,i)
+			String startTime  = findTestData(laneTestData).getValue(6,i)
 			boolean isExpired = WaitUntilWithinTimeSlot(startTime)
-			String appointmentNum  = findTestData(laneTestData).getValue(1,i)
+			String appointmentNum  = findTestData(laneTestData).getValue(5,i)
 			
 			if (isExpired) {
 				i++;
 				continue
 			}
 			println(appointmentNum + " create started, not expired")
-			String timeWaitInMin  = findTestData(laneTestData).getValue(9,i)
+			String timeWaitInMin  = findTestData(laneTestData).getValue(13,i)
 			
 			WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointment_num'), appointmentNum)
 			WebUI.delay(2)
@@ -268,27 +268,38 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 //This will login and navigate to CY Gate UI
 static void Login(laneTestData) {
 	WebUI.openBrowser('')
-	WebUI.navigateToUrl(findTestData(laneTestData).getValue(17, 1))
+	WebUI.navigateToUrl(findTestData(laneTestData).getValue(3, 4))
 	WebUI.maximizeWindow()
 	if(WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/ChromeAdvancedButton'), 3, FailureHandling.OPTIONAL))
 		{
-		WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/ChromeAdvancedButton'))
-		WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/ChromeProceedToSite'))
-		WebUI.delay(2)
-		WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/Username'), findTestData(laneTestData).getValue(15, 1))
-		WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/Password'), findTestData(laneTestData).getValue(16, 1))
-		WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/LoginSubmit'))
-		WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/HomePage'), 60)
-		WebUI.navigateToUrl(findTestData(laneTestData).getValue(18, 1))
-		WebUI.waitForPageLoad(100)
+			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/ChromeAdvancedButton'))
+			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/ChromeProceedToSite'))
+			WebUI.delay(2)
+		
+			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/Login/AcceptCookiesButton'), 20))
+				{
+					WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/AcceptCookiesButton'))
+				}
+			
+			
+			WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/Username'), findTestData(laneTestData).getValue(3, 2))
+			WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/Password'), findTestData(laneTestData).getValue(3, 3))
+			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/LoginSubmit'))
+			WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/HomePage'), 60)
+			WebUI.navigateToUrl(findTestData(laneTestData).getValue(3, 5))
+			WebUI.waitForPageLoad(100)
 		}
+		
+	
+		
+		
 	else
 		{
-		WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/Username'), findTestData(laneTestData).getValue(15, 1))
-		WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/Password'), findTestData(laneTestData).getValue(16, 1))
+		WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/Username'), findTestData(laneTestData).getValue(3, 2))
+		WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/Password'), findTestData(laneTestData).getValue(3, 3))
 		WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/LoginSubmit'))
 		WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/HomePage'), 60)
-		WebUI.navigateToUrl(findTestData(laneTestData).getValue(18, 1))
+		WebUI.navigateToUrl(findTestData(laneTestData).getValue(3, 5))
 		WebUI.waitForPageLoad(100)
 		}
 	
@@ -300,7 +311,7 @@ static void OutGate(String appointmentNum, String gateVisit, String laneType, in
 	// Simulation start
 	
 	// This will read logs for road queue lift on container
-	File dir = new File (findTestData(laneTestData).getValue(19, 1))
+	File dir = new File (findTestData(laneTestData).getValue(3, 6))
 	println(dir)
 	println(containerList)
 	boolean fileFoundPending = false;

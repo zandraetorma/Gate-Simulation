@@ -1,0 +1,61 @@
+{
+	"info": {
+		"_postman_id": "37c34472-d641-4fd1-80af-32be0b0b4c45",
+		"name": "LQN - Auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25841099"
+	},
+	"item": [
+		{
+			"name": "https://zodiacappqa.lqn.zodiac-cloud.com/zodiac/fdn/api/v1/auth",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "z.userid",
+						"value": "lqnqa02",
+						"type": "text"
+					},
+					{
+						"key": "z.currentDataScope",
+						"value": "LQN",
+						"type": "text"
+					},
+					{
+						"key": "z.ip",
+						"value": "127.0.0.1",
+						"type": "text"
+					},
+					{
+						"key": "z.password",
+						"value": "welcome",
+						"type": "text"
+					},
+					{
+						"key": "z.locale",
+						"value": "en-US",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://zodiacappqa.lqn.zodiac-cloud.com/zodiac/fdn/api/v1/auth",
+					"protocol": "https",
+					"host": [
+						"zodiacappqa",
+						"lqn",
+						"zodiac-cloud",
+						"com"
+					],
+					"path": [
+						"zodiac",
+						"fdn",
+						"api",
+						"v1",
+						"auth"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
