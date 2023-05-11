@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7ec0ed16-6b10-4a66-a7ba-1162be50e0d2",
+		"_postman_id": "90096604-8bd6-4d5d-9bc0-6abe6abd6175",
 		"name": "BULK",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "25841099"
@@ -13,13 +13,35 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
+							"//String literals that holds the value of gateMissionTypeCode, gateScenarioCode, bookingNbr and bookingOperator\r",
+							"const missionTypeTemplateLiterals      = [\"gateMissionTypeCode1\", \"gateMissionTypeCode2\", \"gateMissionTypeCode3\", \"gateMissionTypeCode4\"];\r",
+							"const gateScenarioCodeTemplateLiterals = [\"gateScenarioCode1\", \"gateScenarioCode2\", \"gateScenarioCode3\", \"gateScenarioCode4\"];\r",
+							"const bookingNbrTemplateLiterals       = [\"bookingNbr1\", \"bookingNbr2\", \"bookingNbr3\", \"bookingNbr4\"];\r",
+							"const bookingOperatorTemplateLiterals  = [\"bookingOperator1\", \"bookingOperator2\", \"bookingOperator3\", \"bookingOperator4\"];\r",
 							"\r",
-							"if(!pm.variables.get(\"gateMissionTypeCode2\") || !pm.variables.get(\"gateMissionTypeCode3\") || !pm.variables.get(\"gateMissionTypeCode4\")){\r",
-							"    //if gateMissionTypeCode2 is empty, remove the second mission object\r",
-							"    var data = JSON.parse(pm.request.body);\r",
-							"    data.missions.splice(1, 4);\r",
-							"    pm.request.body = JSON.stringify(data);\r",
-							"}"
+							"//Get the current CSV row then convert it to JSON format to access the data later on \r",
+							"var data = JSON.parse(pm.request.body);\r",
+							"\r",
+							"for (var i = missionTypeTemplateLiterals.length - 1; i >= 0; i--) {\r",
+							"\r",
+							"    // If gateMissionTypeCode has no value\r",
+							"    if (!pm.variables.get(missionTypeTemplateLiterals[i])) {\r",
+							"\r",
+							"        //Remove object from missions\r",
+							"        data.missions.splice(i, 1);\r",
+							"    }\r",
+							"\r",
+							"    // If gateScenarioCode's value is \"IMPL\", \"STPL\", \"BTPL\", \"STRL\", \"STRE\"\r",
+							"    if (pm.variables.get(gateScenarioCodeTemplateLiterals[i]) == \"IMPL\" || pm.variables.get(gateScenarioCodeTemplateLiterals[i]) == \"STPL\" || pm.variables.get(gateScenarioCodeTemplateLiterals[i]) == \"BTPL\" || pm.variables.get(gateScenarioCodeTemplateLiterals[i]) == \"STRL\" || pm.variables.get(gateScenarioCodeTemplateLiterals[i]) == \"STRE\") {\r",
+							"        \r",
+							"        //Remove bookingNbr and bookingOperator from current mission\r",
+							"        delete data.missions[i].bookingNbr;\r",
+							"        delete data.missions[i].bookingOperator;\r",
+							"    }\r",
+							"}\r",
+							"\r",
+							"//Convert the edited JSON format to CSV format, then Override the current CSV row to the edited CSV row\r",
+							"pm.request.body = JSON.stringify(data);"
 						],
 						"type": "text/javascript"
 					}
@@ -30,7 +52,7 @@
 				"header": [
 					{
 						"key": "z.sessionToken",
-						"value": "819b0428-a3b8-428d-b00c-d4ad2557ee94",
+						"value": "973ed8fc-a086-423b-b4b3-124c8cda8e41",
 						"type": "text"
 					},
 					{
