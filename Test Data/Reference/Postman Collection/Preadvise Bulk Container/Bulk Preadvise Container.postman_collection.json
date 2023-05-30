@@ -1,0 +1,102 @@
+{
+	"info": {
+		"_postman_id": "75483a7e-8ce1-457b-8ecf-a4c2d3e5f261",
+		"name": "Bulk Preadvise Container",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25841099"
+	},
+	"item": [
+		{
+			"name": "LQN Preadvise Container - EX",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Get the current CSV row then convert it to JSON format to access the data later on\r",
+							"\r",
+							"var data = JSON.parse(pm.request.body);\r",
+							"\r",
+							"\r",
+							"// If shippingStatus is not \"EX\"\r",
+							"if (pm.variables.get(\"SS\") !== \"EX\") {\r",
+							"    // Remove bookingNbr\r",
+							"    delete data[\"bookingNbr\"];\r",
+							"}\r",
+							"\r",
+							"// If shippingStatus is \"ST\"\r",
+							"if (pm.variables.get(\"SS\") == \"ST\") {\r",
+							"    // Remove outVisit, pol, pod1\r",
+							"    delete data[\"outVisit\"];\r",
+							"    delete data[\"pol\"];\r",
+							"    delete data[\"pod1\"];\r",
+							"}\r",
+							"\r",
+							"// Convert the edited JSON format to CSV format, then override the current CSV row with the edited CSV row\r",
+							"pm.request.body = JSON.stringify(data);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "z.sessionToken",
+						"value": "65bd4fd9-56cd-4c50-85ea-a66874cc8bcc",
+						"type": "text"
+					},
+					{
+						"key": "z.currentDataScope",
+						"value": "LQN",
+						"type": "text"
+					},
+					{
+						"key": "z.locale",
+						"value": "en",
+						"type": "text"
+					},
+					{
+						"key": "z.ip",
+						"value": "127.0.0.1",
+						"type": "text"
+					},
+					{
+						"key": "z.userId",
+						"value": "LQNQA02",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"validatePossibleVal\": \"1\",\r\n  \"overrideWarning\": \"1\",\r\n  \"eqpNbr\": \"{{Cntr No.}}\",\r\n  \"shippingStatus\": \"{{SS}}\",\r\n  \"cntrType\": \"{{ISO Type}}\",\r\n  \"loadStatus\": \"{{Laden Status}}\",\r\n  \"operator\": \"{{Opr}}\",\r\n  \"outVisit\": \"{{Outbound Visit}}\",\r\n  \"pol\": \"{{POL}}\",\r\n  \"pod1\": \"{{POD}}\",\r\n  \"bookingNbr\": \"{{Bkg No.}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://zodiacappqa.lqn.zodiac-cloud.com/zodiac/api/v2/equipment/preadvise",
+					"protocol": "https",
+					"host": [
+						"zodiacappqa",
+						"lqn",
+						"zodiac-cloud",
+						"com"
+					],
+					"path": [
+						"zodiac",
+						"api",
+						"v2",
+						"equipment",
+						"preadvise"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
