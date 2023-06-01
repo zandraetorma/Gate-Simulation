@@ -44,6 +44,9 @@ import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.*
 import java.io.*
 import org.apache.commons.lang.StringUtils
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 
 
@@ -62,12 +65,16 @@ Runtime.getRuntime().exec('taskkill /im chrome.exe /f')
 
 // Attributes inside this Global class will be accessed throughout the code
 public class Global {
-    // Declare logDict as a global variable, used to store report logs, then later on insert it to report excels
-    private static Map<String, Map<String, Object>> logDict = new HashMap<>();
-	// Use this to count how many threads is running, used later on to only start putting value to report excels when all process is done.
+	// Declare logDict as a global variable, used to store report logs, then later on insert it to report excels
+	private static Map<String, Map<String, Object>> logDict = new HashMap<>();
+	// Use this to count how many threads is running(Both Lane and OutGate), used later on to only start putting value to report excels when all process is done.
 	private static int activeThreadCount = 0
-}
 
+	// outgate thread counter
+	private static int outgateThreadCounter = 0
+	// outgate thread limit all throughout the lanes, ex. outgateThreadLimit = 1, and have 3 lanes, only 1 outgate will run from those 3 lanes, whoever is fastest at that time.
+	private static int outgateThreadLimit = 1
+}
 
 
 String sheetName      = "CY Gate Lane"
@@ -77,7 +84,9 @@ String numberOfExcelString = findTestData(sheetName + " 1").getValue(2, 6)
 int numberOfExcel = Integer.parseInt(numberOfExcelString)
 println("Number of excel - " + numberOfExcel)
  
- 
+//thread queueing, set to 1 at a time
+ExecutorService executor = Executors.newFixedThreadPool(1);
+
 for (int i = 1; i <= numberOfExcel; i++) {
 	// Excel name + loop number = current CY Gate lane
 	String laneTestData = sheetName + " " + i
@@ -97,7 +106,7 @@ for (int i = 1; i <= numberOfExcel; i++) {
 	Thread t1 = new Thread(new Runnable() {
 		@Override
 		public void run() {
-			Lane(laneID, laneTestData, laneType, outLaneID, currentReportFilePath);
+			Lane(laneID, laneTestData, laneType, outLaneID, currentReportFilePath, executor);
 		}
 	});
 	// Started a thread process, activeThreadCount increment by 1
@@ -105,11 +114,20 @@ for (int i = 1; i <= numberOfExcel; i++) {
 	t1.start()
 }
 
+
+// Wait for all threads to finish executing
+try {
+	executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+} catch (InterruptedException e) {
+	e.printStackTrace();
+}
+
+print ("this is Before the sleep, will check for activeThreadCount is there is still running threads.")
 // Sleep when theres still thread running, will continue below only when all threads are done.
-while (Global.activeThreadCount > 0) {
+while (!executor.isTerminated()) {
 	// checks every 60 seconds
 	println("Still have " + Global.activeThreadCount + " threads running, will sleep for 60 seconds then check again")
-	WebUI.delay(60)
+	WebUI.delay(10)
 }
 
 println("All threads done, proceeding to update excel reports")
@@ -118,19 +136,19 @@ println("logDict " + Global.logDict)
 // Start adding data in dictionary "logDict" to respective excel reports
 // Loop is per CY Gate/Lane
 for (gateEntry in Global.logDict.entrySet()) {
-    String currentReportFilePath = gateEntry.key
-    Map<String, Map<String, Object>> appointments = gateEntry.value
-    
+	String currentReportFilePath = gateEntry.key
+	Map<String, Map<String, Object>> appointments = gateEntry.value
+	
 	// Per CY Gate/Lane has its own report excel, this part will open that report excel based on currentReportFilePath
 	FileInputStream file = new FileInputStream(new File(currentReportFilePath))
 	XSSFWorkbook workbook = new XSSFWorkbook(file)
 	XSSFSheet sheet = workbook.getSheetAt(0)
 
 	// This loop is per appointment inside this CY Gate/Lane
-    for (appointmentEntry in appointments.entrySet()) {
-        String appointmentNum = appointmentEntry.key
-        Map<String, Object> appointmentData = appointmentEntry.value
-        
+	for (appointmentEntry in appointments.entrySet()) {
+		String appointmentNum = appointmentEntry.key
+		Map<String, Object> appointmentData = appointmentEntry.value
+		
 		// This check the current appointment if has data rowNumber, if not will proceed to next appointment
 		if (appointmentData.containsKey("row")) {
 			int rowNumber = appointmentData["row"]
@@ -168,9 +186,9 @@ for (gateEntry in Global.logDict.entrySet()) {
 			if (appointmentData.containsKey("gateCompletedTimeformatted")) {
 				String gateCompletedTimeformatted = appointmentData["gateCompletedTimeformatted"]
 				row.createCell(8).setCellValue(gateCompletedTimeformatted)
-			}	
+			}
 		}
-    }
+	}
 
 	// After looping through all appointment datas in this CY Gate/Lane, time to save the current report excel
 	FileOutputStream fileOut = new FileOutputStream(currentReportFilePath)
@@ -193,7 +211,7 @@ println ("Done inserting all report logs")
 //Functions
 //----------------------------------------------------------------------------------------------------------
 //This function is for the lane/browser to open and create visit by appointment number
-static void Lane(String laneID, String laneTestData, String laneType, ArrayList<String> outLaneID, String currentReportFilePath) {
+static void Lane(String laneID, String laneTestData, String laneType, ArrayList<String> outLaneID, String currentReportFilePath, ExecutorService executor) {
 	// Add to logDict with Key = currentReportFilePath, and its value = empty dictionary.
 	Global.logDict.putAt(currentReportFilePath, new HashMap<>())
 	
@@ -224,7 +242,7 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 		int i = 1;
 
 		while (i <= rowsOfData) {
-			//Get values from current row	
+			//Get values from current row
 			String startTime  = findTestData(laneTestData).getValue(5,i)
 			
 			
@@ -302,7 +320,7 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 						String toGroundPickTimeFormatted = toGroundPickTime.format(formatter)
 						
 						// Update dictionary inside of current appointmentNum key with "toGroundPickTimeFormatted" value
-						Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("toGroundPickTimeFormatted", toGroundPickTimeFormatted)				
+						Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("toGroundPickTimeFormatted", toGroundPickTimeFormatted)
 
 						WebUI.delay(3)
 						//Thread.sleep(3000);
@@ -347,25 +365,31 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 							isIM = true;
 						}
 				
-						 Thread outgateThread2 = new Thread(new Runnable() {
-						 	@Override
-						 	public void run() {
-						 		OutGate(currentReportFilePath, appointmentNum, gateVisit, laneType, i, containerList, isIM, laneID, outLaneID, laneTestData)
-						 	}
+
+						// // Sleep first when activeThreadCount is >= threadLimit
+						// while (Global.outgateThreadCounter >= Global.outgateThreadLimit){
+						// 	println ("Sleeping for 10 seconds, active thread count is >= threadLimit. activeThreadCount: " + activeThreadCount + "; threadLimit: "+ threadLimit);
+						// 	Thread.sleep(10000)
+						// }
+						
+						// Started a thread process, activeThreadCount increment by 1
+						Global.activeThreadCount ++;
+						Global.outgateThreadCounter ++;
+						println(appointmentNum + " started outgate")
+						println("thread is freed up, running outgate thread")
+						isError = false
+						executor.execute(new Runnable() {
+							@Override
+							public void run() {
+								 OutGate(currentReportFilePath, appointmentNum, gateVisit, laneType, i, containerList, isIM, laneID, outLaneID, laneTestData)
+							 }
 						 });
 
-						// Started a thread process, activeThreadCount increment by 1
-						 Global.activeThreadCount ++;
-						 outgateThread2.start()
-						 println(appointmentNum + " started outgate")
-						
-						isError = false
-						
 					}
 					
 				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/clear_button'))
 				
-				// if isError is False, only will apply delay for time wait in minute 
+				// if isError is False, only will apply delay for time wait in minute
 				if (isError == false)
 				{
 					WebUI.delay((Double.parseDouble(timeWaitInMin) * 60).toLong())
@@ -582,6 +606,7 @@ static void OutGate(String currentReportFilePath, String appointmentNum, String 
 	}
 	// Ending a thread process, activeThreadCount decrement by 1
 	Global.activeThreadCount --;
+	Global.outgateThreadCounter --;
 }
 
 

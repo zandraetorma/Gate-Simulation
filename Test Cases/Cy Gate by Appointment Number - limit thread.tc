@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestCaseEntity>
    <description></description>
-   <name>Cy Gate by Appointment Number</name>
+   <name>Cy Gate by Appointment Number - limit thread</name>
    <tag></tag>
    <comment></comment>
-   <testCaseGuid>ef7b57cc-b637-4299-bc79-47024f7d013c</testCaseGuid>
+   <testCaseGuid>ae797470-ae7f-4785-a94d-3e1672680721</testCaseGuid>
 </TestCaseEntity>

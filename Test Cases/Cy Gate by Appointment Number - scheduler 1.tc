@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestCaseEntity>
    <description></description>
-   <name>Cy Gate by Appointment Number</name>
+   <name>Cy Gate by Appointment Number - scheduler 1</name>
    <tag></tag>
    <comment></comment>
-   <testCaseGuid>ef7b57cc-b637-4299-bc79-47024f7d013c</testCaseGuid>
+   <testCaseGuid>35ec4758-f263-45d0-85dc-253d07736ed2</testCaseGuid>
 </TestCaseEntity>
