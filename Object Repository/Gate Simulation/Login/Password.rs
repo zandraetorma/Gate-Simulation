@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>Password</name>
+   <name>password</name>
    <tag></tag>
    <elementGuidId>d163342a-f112-45ae-9d3a-c7eb922096d2</elementGuidId>
    <selectorCollection>

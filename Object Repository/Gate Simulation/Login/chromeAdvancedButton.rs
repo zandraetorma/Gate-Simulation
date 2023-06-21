@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>username</name>
+   <name>chromeAdvancedButton</name>
    <tag></tag>
-   <elementGuidId>12578800-7a1a-42ef-b871-1cd6f2b870bf</elementGuidId>
+   <elementGuidId>b3ae4fff-d484-40eb-92fb-f394a5fb5b7f</elementGuidId>
    <selectorCollection>
       <entry>
          <key>XPATH</key>
-         <value>//*[@id=&quot;frmLogin&quot;]/div[2]/input</value>
+         <value>//*[@id=&quot;details-button&quot;]</value>
       </entry>
       <entry>
          <key>BASIC</key>

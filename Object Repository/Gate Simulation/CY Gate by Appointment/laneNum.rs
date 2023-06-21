@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>username</name>
+   <name>laneNum</name>
    <tag></tag>
-   <elementGuidId>12578800-7a1a-42ef-b871-1cd6f2b870bf</elementGuidId>
+   <elementGuidId>72ea79e3-eed4-4484-a2a4-a1ccb89e9d06</elementGuidId>
    <selectorCollection>
       <entry>
          <key>XPATH</key>
-         <value>//*[@id=&quot;frmLogin&quot;]/div[2]/input</value>
+         <value>//input[@placeholder=&quot;Lane Number&quot;]</value>
       </entry>
       <entry>
          <key>BASIC</key>

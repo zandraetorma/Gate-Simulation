@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>username</name>
+   <name>proceedButton</name>
    <tag></tag>
-   <elementGuidId>12578800-7a1a-42ef-b871-1cd6f2b870bf</elementGuidId>
+   <elementGuidId>9fa9a16e-1941-4671-9e88-c898e4a6185c</elementGuidId>
    <selectorCollection>
       <entry>
          <key>XPATH</key>
-         <value>//*[@id=&quot;frmLogin&quot;]/div[2]/input</value>
+         <value>//button[contains(text(), 'Proceed')]</value>
       </entry>
       <entry>
          <key>BASIC</key>

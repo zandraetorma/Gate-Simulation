@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>username</name>
+   <name>outGateLane</name>
    <tag></tag>
-   <elementGuidId>12578800-7a1a-42ef-b871-1cd6f2b870bf</elementGuidId>
+   <elementGuidId>a7c7719d-7ccd-4307-858a-3a40f77f1592</elementGuidId>
    <selectorCollection>
       <entry>
          <key>XPATH</key>
-         <value>//*[@id=&quot;frmLogin&quot;]/div[2]/input</value>
+         <value>//button[text() = 'Out gate']</value>
       </entry>
       <entry>
          <key>BASIC</key>

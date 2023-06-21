@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>username</name>
+   <name>homePage</name>
    <tag></tag>
-   <elementGuidId>12578800-7a1a-42ef-b871-1cd6f2b870bf</elementGuidId>
+   <elementGuidId>051aa2c2-ea71-42d8-bb07-4086ea1e0d22</elementGuidId>
    <selectorCollection>
       <entry>
          <key>XPATH</key>
-         <value>//*[@id=&quot;frmLogin&quot;]/div[2]/input</value>
+         <value>//*[@id=&quot;navbar&quot;]</value>
       </entry>
       <entry>
          <key>BASIC</key>

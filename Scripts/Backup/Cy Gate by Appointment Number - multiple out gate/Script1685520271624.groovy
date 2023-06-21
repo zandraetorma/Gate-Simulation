@@ -44,13 +44,6 @@ import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.*
 import java.io.*
 import org.apache.commons.lang.StringUtils
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
-
-import java.awt.Toolkit;
 
 
 
@@ -62,24 +55,19 @@ Runtime.getRuntime().exec('taskkill /im chrome.exe /f')
 
 
 
-//----------------------------------------------------------------------------------------------------------+
+//Configurable parameters
+//----------------------------------------------------------------------------------------------------------
 //This thread is used to open multiple browsers for each lane.
 
 
 // Attributes inside this Global class will be accessed throughout the code
 public class Global {
-	// Declare logDict as a global variable, used to store report logs, then later on insert it to report excels
-	private static Map<String, Map<String, Object>> logDict = new HashMap<>();
-	// array to store data for outgate
-	private static List<Object> forOutgateDatas = [];
-	private static int forOutgateDatasCounter = 0;
-	// Use this to count how many threads is running(Both Lane and OutGate), used later on to only start putting value to report excels when all process is done.
+    // Declare logDict as a global variable, used to store report logs, then later on insert it to report excels
+    private static Map<String, Map<String, Object>> logDict = new HashMap<>();
+	// Use this to count how many threads is running, used later on to only start putting value to report excels when all process is done.
 	private static int activeThreadCount = 0
-	private static int activeLaneThreadCount = 0
-
-	private static boolean ingateLoginIsLeft = true
-	private static WebDriver outgateDriver = null
 }
+
 
 
 String sheetName      = "CY Gate Lane"
@@ -89,7 +77,7 @@ String numberOfExcelString = findTestData(sheetName + " 1").getValue(2, 6)
 int numberOfExcel = Integer.parseInt(numberOfExcelString)
 println("Number of excel - " + numberOfExcel)
  
-
+ 
 for (int i = 1; i <= numberOfExcel; i++) {
 	// Excel name + loop number = current CY Gate lane
 	String laneTestData = sheetName + " " + i
@@ -100,7 +88,7 @@ for (int i = 1; i <= numberOfExcel; i++) {
 	String outlaneString = findTestData(laneTestData).getValue(3, 8)
  
 	ArrayList<String> outLaneID = new ArrayList<String>();
-	
+ 
 	//Split outlaneString into array with "," , adding value " (OUT)" then add it to outLaneID array
 	for (String id : outlaneString.split(",")) {
 		outLaneID.add( id + " (OUT)");
@@ -114,28 +102,14 @@ for (int i = 1; i <= numberOfExcel; i++) {
 	});
 	// Started a thread process, activeThreadCount increment by 1
 	Global.activeThreadCount ++
-	Global.activeLaneThreadCount ++
 	t1.start()
 }
 
-
-//OPEN OUTGATE BROWSER
-Thread tt1 = new Thread(new Runnable() {
-	@Override
-	public void run() {
-		outGateBrowser(sheetName + " 1")
-	}
-});
-// Started a thread process, activeThreadCount increment by 1
-Global.activeThreadCount ++
-tt1.start()
-
-print ("this is Before the sleep, will check for activeThreadCount is there is still running threads.")
-
+// Sleep when theres still thread running, will continue below only when all threads are done.
 while (Global.activeThreadCount > 0) {
 	// checks every 60 seconds
 	println("Still have " + Global.activeThreadCount + " threads running, will sleep for 60 seconds then check again")
-	WebUI.delay(10)
+	WebUI.delay(60)
 }
 
 println("All threads done, proceeding to update excel reports")
@@ -143,34 +117,26 @@ println("logDict " + Global.logDict)
 
 // Start adding data in dictionary "logDict" to respective excel reports
 // Loop is per CY Gate/Lane
-
-
 for (gateEntry in Global.logDict.entrySet()) {
-	String currentReportFilePath = gateEntry.key
-	Map<String, Map<String, Object>> appointments = gateEntry.value
-	
+    String currentReportFilePath = gateEntry.key
+    Map<String, Map<String, Object>> appointments = gateEntry.value
+    
 	// Per CY Gate/Lane has its own report excel, this part will open that report excel based on currentReportFilePath
 	FileInputStream file = new FileInputStream(new File(currentReportFilePath))
 	XSSFWorkbook workbook = new XSSFWorkbook(file)
 	XSSFSheet sheet = workbook.getSheetAt(0)
 
 	// This loop is per appointment inside this CY Gate/Lane
-	for (appointmentEntry in appointments.entrySet()) {
-		String appointmentNum = appointmentEntry.key
-		Map<String, Object> appointmentData = appointmentEntry.value
-		
+    for (appointmentEntry in appointments.entrySet()) {
+        String appointmentNum = appointmentEntry.key
+        Map<String, Object> appointmentData = appointmentEntry.value
+        
 		// This check the current appointment if has data rowNumber, if not will proceed to next appointment
 		if (appointmentData.containsKey("row")) {
 			int rowNumber = appointmentData["row"]
 			Row row = sheet.createRow(rowNumber)
 			row.createCell(0).setCellValue(appointmentNum)
-			
-			int rowNumberReport = rowNumber + 1
-			
-			row.createCell(4).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(C' + rowNumberReport +'))), TEXT(D' + rowNumberReport +'-C' + rowNumberReport +', "hh:mm:ss"), "")');
-			row.createCell(6).setCellFormula('IF(AND(NOT(ISBLANK(F' + rowNumberReport + ')), NOT(ISBLANK(D' + rowNumberReport +'))), TEXT(F' + rowNumberReport +'-D' + rowNumberReport +', "hh:mm:ss"), "")');
-			row.createCell(9).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(H' + rowNumberReport +'))), TEXT(I' + rowNumberReport +'-H' + rowNumberReport +', "hh:mm:ss"), "")');
-			row.createCell(10).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(C' + rowNumberReport +'))), TEXT(I' + rowNumberReport +'-C' + rowNumberReport +', "hh:mm:ss"), "")');
+		
 			// If has gateVisit in dictionary, then retrieve data from dictionary, lastly insert it to report excel, same process with other datas below
 			if (appointmentData.containsKey("gateVisit")) {
 				String gateVisit = appointmentData["gateVisit"]
@@ -202,9 +168,9 @@ for (gateEntry in Global.logDict.entrySet()) {
 			if (appointmentData.containsKey("gateCompletedTimeformatted")) {
 				String gateCompletedTimeformatted = appointmentData["gateCompletedTimeformatted"]
 				row.createCell(8).setCellValue(gateCompletedTimeformatted)
-			}
+			}	
 		}
-	}
+    }
 
 	// After looping through all appointment datas in this CY Gate/Lane, time to save the current report excel
 	FileOutputStream fileOut = new FileOutputStream(currentReportFilePath)
@@ -217,6 +183,12 @@ for (gateEntry in Global.logDict.entrySet()) {
 println ("Done inserting all report logs")
 //Configuration ends here
 //----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
 
 //Functions
 //----------------------------------------------------------------------------------------------------------
@@ -231,7 +203,7 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 
 	if(firstData)
 	{
-		login(laneTestData, false);
+		Login(laneTestData);
 		WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), laneID)
 		
 		// Will continuous downkey until lane value matches
@@ -252,11 +224,11 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 		int i = 1;
 
 		while (i <= rowsOfData) {
-			//Get values from current row
+			//Get values from current row	
 			String startTime  = findTestData(laneTestData).getValue(5,i)
 			
 			
-			boolean isExpired = waitUntilWithinTimeSlot(startTime)
+			boolean isExpired = WaitUntilWithinTimeSlot(startTime)
 			String appointmentNum  = findTestData(laneTestData).getValue(4,i)
 
 			
@@ -278,8 +250,8 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 			String timeWaitInMin  = findTestData(laneTestData).getValue(12,i)
 			
 			WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), appointmentNum)
-			//WebUI.delay(2)
-			Thread.sleep(2000);
+			WebUI.delay(2)
+			//Thread.sleep(2000);
 			WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), Keys.chord(Keys.DOWN))
 			WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), Keys.chord(Keys.ENTER))
 			
@@ -295,12 +267,12 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 			// Update dictionary inside of current appointmentNum key with "appInputTimeFormatted" value
 			Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("appInputTimeFormatted", appInputTimeFormatted)
 			
-			while(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_1'), 20) == false)
+			while(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_1'), 90) == false)
 			{
 				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/clearButton'))
 				WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), appointmentNum)
-				//WebUI.delay(2)
-				Thread.sleep(2000);
+				WebUI.delay(2)
+				//Thread.sleep(2000);
 				WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), Keys.chord(Keys.DOWN))
 				WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), Keys.chord(Keys.ENTER))
 
@@ -318,7 +290,7 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 			Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("preInGateTimeFormatted", preInGateTimeFormatted)
 
 
-			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedInGateButton'), 120))
+			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedInGateButton'), 90))
 					{
 						WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedInGateButton'))
 						
@@ -330,10 +302,10 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 						String toGroundPickTimeFormatted = toGroundPickTime.format(formatter)
 						
 						// Update dictionary inside of current appointmentNum key with "toGroundPickTimeFormatted" value
-						Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("toGroundPickTimeFormatted", toGroundPickTimeFormatted)
+						Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("toGroundPickTimeFormatted", toGroundPickTimeFormatted)				
 
-						//WebUI.delay(3)
-						Thread.sleep(3000);
+						WebUI.delay(3)
+						//Thread.sleep(3000);
 						String gateVisit =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), "value")
 	
 						// Update dictionary inside of current appointmentNum key with "gateVisit" value
@@ -374,32 +346,26 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 							println(laneID + " : At least one FULL/EMPTY OUT mission is present in appointment " + appointmentNum)
 							isIM = true;
 						}
+				
+						 Thread outgateThread2 = new Thread(new Runnable() {
+						 	@Override
+						 	public void run() {
+						 		OutGate(currentReportFilePath, appointmentNum, gateVisit, laneType, i, containerList, isIM, laneID, outLaneID, laneTestData)
+						 	}
+						 });
+
+						// Started a thread process, activeThreadCount increment by 1
+						 Global.activeThreadCount ++;
+						 outgateThread2.start()
+						 println(appointmentNum + " started outgate")
 						
 						isError = false
-						// executor.execute(new Runnable() {
-						// 	@Override
-						// 	public void run() {
-						// 		 outGate(currentReportFilePath, appointmentNum, gateVisit, laneType, i, containerList, isIM, laneID, outLaneID, laneTestData)
-						// 	 }
-						//  });
-						// PUT DATAS NEEDED FOR OUTGATE TO GLOBAL ARRAY
-
-						Global.forOutgateDatas.add(["currentReportFilePath": currentReportFilePath,
-													"appointmentNum": appointmentNum,
-													"gateVisit": gateVisit,
-													"laneType": laneType,
-													"row": i,
-													"containerList": containerList,
-													"isIM": isIM,
-													"laneID": laneID,
-													"outLaneID": outLaneID,
-													"laneTestData": laneTestData
-												])
+						
 					}
 					
 				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/clearButton'))
 				
-				// if isError is False, only will apply delay for time wait in minute
+				// if isError is False, only will apply delay for time wait in minute 
 				if (isError == false)
 				{
 					WebUI.delay((Double.parseDouble(timeWaitInMin) * 60).toLong())
@@ -414,55 +380,13 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 	}
 	// Ending a thread process, activeThreadCount decrement by 1
 	Global.activeThreadCount --;
-	Global.activeLaneThreadCount --;
 }
 
-
 //This will login and navigate to CY Gate UI
-static void login(laneTestData, isOutGate) {
-	WebUI.openBrowser('');
-	WebDriver driver = DriverFactory.getWebDriver();
-	
-	// Set screen dimensions
-	java.awt.Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	int screenWidth = (int) screenSize.getWidth();
-	int screenHeight = (int) screenSize.getHeight();
-
-	// Window 1 - Positioned to the left
-	
-	if (isOutGate) {
-		//If is outgate, set window position to most right of 1/3 screen
-		driver.manage().window().setPosition(new Point((screenWidth / 3).intValue() * 2, 0))
-		
-//		String windowName = "Outgate";
-//		WebUI.executeJavaScript("document.title = arguments[0];", Arrays.asList(windowName))
-	}else {
-		//If is ingate, alternate position of screen between 1/3 screen left and 1/3 screen center
-		if (Global.ingateLoginIsLeft) {
-			Global.ingateLoginIsLeft = false
-			driver.manage().window().setPosition(new Point((screenWidth / 3).intValue(), 0))
-			
-			
-		} else {
-			Global.ingateLoginIsLeft = true
-			driver.manage().window().setPosition(new Point(0, 0))
-			
-		}
-	}
-	
-	//set window size to 1/3 of screen
-	driver.manage().window().setSize(new Dimension((screenWidth / 3).intValue(), screenHeight))
-	
-	
-	//go to the chrome settings
-	driver.get("chrome://settings/")
-	
-	//set the zoom to 70%
-	((JavascriptExecutor)driver).executeScript("chrome.settingsPrivate.setDefaultZoom(0.6);");
-	
+static void Login(laneTestData) {
+	WebUI.openBrowser('')
 	WebUI.navigateToUrl(findTestData(laneTestData).getValue(2, 3))
-	
-	//WebUI.maximizeWindow()
+	WebUI.maximizeWindow()
 	if(WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/chromeAdvancedButton'), 3, FailureHandling.OPTIONAL))
 		{
 			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/chromeAdvancedButton'))
@@ -474,77 +398,34 @@ static void login(laneTestData, isOutGate) {
 					WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/acceptCookiesButton'))
 				}
 			
-
-			WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/username'), findTestData(laneTestData).getValue(2, 1))
-			WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/password'), findTestData(laneTestData).getValue(2, 2))
+			
+			WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/Username'), findTestData(laneTestData).getValue(2, 1))
+			WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/Password'), findTestData(laneTestData).getValue(2, 2))
 			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/loginSubmit'))
 			WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/homePage'), 60)
 			WebUI.navigateToUrl(findTestData(laneTestData).getValue(2, 4))
 			WebUI.waitForPageLoad(100)
+	
 		}
-
+		
+	
+		
+		
 	else
-	{
-		WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/username'), findTestData(laneTestData).getValue(2, 1))
-		WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/password'), findTestData(laneTestData).getValue(2, 2))
+		{
+		WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/Username'), findTestData(laneTestData).getValue(2, 1))
+		WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/Password'), findTestData(laneTestData).getValue(2, 2))
 		WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/loginSubmit'))
 		WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/homePage'), 60)
 		WebUI.navigateToUrl(findTestData(laneTestData).getValue(2, 4))
 		WebUI.waitForPageLoad(100)
-	}
-	
-//	// Create a JavascriptExecutor instance using the WebDriver
-//	JavascriptExecutor jsExecutor = driver as JavascriptExecutor
-//	
-//	// Set the desired zoom level (e.g., 50%)
-//	jsExecutor.executeScript("document.body.style.zoom='40%'")
-//	
-	
-	
-	
-	
-}
-
-
-static void outGateBrowser(String sheetName){
-	//Open browser and login for outgate window
-	login(sheetName, true);
-
-//	for (appointmentEntry in Global.forOutgateDatas.entrySet()) {
-//		String appointmentNum = appointmentEntry.key
-//		Map<String, Object> appointmentData = appointmentEntry.value
-//
-//		// This check the current appointment if has data rowNumber, if not will proceed to next appointment
-//		if (appointmentData.containsKey("row")) {
-//			int rowNumber = appointmentData["row"]
-
-	
-	//Continue while loop If theres still active lane thread running
-			// OR if theres no more active lane thread, and counter for the loop and the size of array is still not the same, it should be the same if its ran through already
-	while (Global.activeLaneThreadCount != 0 || (Global.activeLaneThreadCount == 0 && Global.forOutgateDatas.size() != Global.forOutgateDatasCounter)) {
-
-		for (int i = 0; i < Global.forOutgateDatas.size(); i++) {
-			
-			// Loop should start at outgateDataCounter, to make sure there's no repeated data
-			if (i == Global.forOutgateDatasCounter){
-				def outGateData = Global.forOutgateDatas[i]
-
-
-				outGate(outGateData["currentReportFilePath"], outGateData["appointmentNum"], outGateData["gateVisit"], outGateData["laneType"], outGateData["row"], outGateData["containerList"], outGateData["isIM"], outGateData["laneID"], outGateData["outLaneID"], outGateData["laneTestData"])
-				Global.forOutgateDatasCounter++
-				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/clearButton'))
-			}
 		}
-
-		Thread.sleep(10000);
-	}
-	WebUI.closeBrowser()
-	DriverFactory.getWebDriver().quit()
-	Global.activeThreadCount --
+	
+	
 }
 
 
-static void outGate(String currentReportFilePath, String appointmentNum, String gateVisit, String laneType, int rowNumber, List<String> containerList, boolean isIM, String laneID, ArrayList<String> outLaneID, String laneTestData) {
+static void OutGate(String currentReportFilePath, String appointmentNum, String gateVisit, String laneType, int rowNumber, List<String> containerList, boolean isIM, String laneID, ArrayList<String> outLaneID, String laneTestData) {
 	// Simulation start
 	
 	// This will read logs for road queue lift on container
@@ -609,8 +490,8 @@ static void outGate(String currentReportFilePath, String appointmentNum, String 
 			break;
 		} else {
 			println(appointmentNum+" not all cotainers in gate visit. sleep 2 start")
-			//WebUI.delay(15)
-			Thread.sleep(15000);
+			WebUI.delay(15)
+			//Thread.sleep(15000);
 			println(appointmentNum+" sleep 2 end")
 		}
 		
@@ -618,12 +499,17 @@ static void outGate(String currentReportFilePath, String appointmentNum, String 
 	}
 	
 	if (isIM == true) {
-
+	// Open browser if log file is found
+		Login(laneTestData);
 		WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), gateVisit)
 		WebUI.delay(1)
 		WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), Keys.chord(Keys.DOWN))
 		WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), Keys.chord(Keys.ENTER))
-				//Get time After input gate visit no. before click proceed
+		
+		
+		
+		
+		//Get time After input gate visit no. before click proceed
 		// Get the current date and time
 		LocalDateTime gateVisitInputTime = LocalDateTime.now()
 		
@@ -632,113 +518,72 @@ static void outGate(String currentReportFilePath, String appointmentNum, String 
 		String gateVisitInputTimeformatted = gateVisitInputTime.format(formatter)
 		Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("gateVisitInputTimeformatted", gateVisitInputTimeformatted)
 		
+		//Global.logDict[currentReportFilePath][appointmentNum] = ["gateVisitInputTimeformatted": gateVisitInputTimeformatted]
+		// Set the cell value
+		// Row row = sheet.createRow(rowNumber) // Specify the row number where you want to insert the data
+		// Cell cellGateVisitInput = row.createCell(7) // Specify the column number where you want to insert the data
+		// cellGateVisitInput.setCellValue(gateVisitInputTimeformatted)
+		// println("Set value for column 5: " + gateVisitInputTimeformatted)
 		
 		
 		
-		
-		if (laneType == "IN") {
+		if (laneType == "IN")
+			{
 				Collections.shuffle(outLaneID);
-				String laneNumValue =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), "value")
+				WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), outLaneID.get(0));
 				
-						if (laneNumValue != outLaneID.get(0)) {
-							// Check if the input field has a value
-							if (!laneNumValue.isEmpty()) {
-							// Delete characters until the input field is empty
-								while (!laneNumValue.isEmpty()) {
-									WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.BACK_SPACE))
-									laneNumValue = laneNumValue.substring(0, laneNumValue.length() - 1);
-								}	
-							}
-									WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), outLaneID.get(0));
-									
-							while (true) {
-								WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.DOWN))
-								String laneAttribute =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNumSuggest'), "aria-label")
-								//WebUI.delay(2)
-								Thread.sleep(2000);
-								// Get current selected value
-				
-								if(outLaneID.get(0) == laneAttribute)
-								{
-									WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.ENTER))
-									println(appointmentNum + "matched" + laneAttribute + outLaneID)
-									break;
-								}
-								println(appointmentNum + "unmatched" + laneAttribute + outLaneID)
-							}
-						}
-		}
-			
-		else {
-			String laneNumValueBoth =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), "value")
-			
-					if (laneNumValueBoth != laneID) {
-						// Check if the input field has a value
-						if (!laneNumValueBoth.isEmpty()) {
-						// Delete characters until the input field is empty
-							while (!laneNumValueBoth.isEmpty()) {
-								WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.BACK_SPACE))
-								laneNumValueBoth = laneNumValueBoth.substring(0, laneNumValueBoth.length() - 1);
-							}
-						}
-							
-						WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), laneID);
-						
-						while (true) {
-							WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.DOWN))
-							String laneAttribute =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNumSuggest'), "aria-label")
-							//WebUI.delay(2)
-							Thread.sleep(2000);
-							// Get current selected value
-			
-							if(laneID == laneAttribute)
-							{
-								WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.ENTER))
-								println(appointmentNum + "matched" + laneAttribute + laneID)
-								break;
-							}
-							println(appointmentNum + "unmatched" + laneAttribute + laneID)
-						}
+				while (true) {
+					WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.DOWN))
+					String laneAttribute =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNumSuggest'), "aria-label")
+					WebUI.delay(2)
+					//Thread.sleep(2000);
+					// Get current selected value
+	
+					if(outLaneID.get(0) == laneAttribute)
+					{
+						WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.ENTER))
+						println(appointmentNum + "matched" + laneAttribute + outLaneID)
+						break;
 					}
-					
-			
-		}
-			
-
-		//WebUI.delay(5)
-		Thread.sleep(10000);
-		if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedButton'), 20))
-		{
-			WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedButton'))
-			
-			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/outgateCompleted'), 120)){
-			
-				//Get time After input gate visit no. before click proceed
-				// Get the current date and time
-				LocalDateTime gateCompletedTime = LocalDateTime.now()
-				
-				// Convert LocalDateTime to a string representation
-				String gateCompletedTimeformatted = gateCompletedTime.format(formatter)
-				
-				// Set the cell value
-				Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("gateCompletedTimeformatted", gateCompletedTimeformatted)
-				//Global.logDict[currentReportFilePath][appointmentNum] = ["gateCompletedTimeformatted": gateCompletedTimeformatted]
-				// Cell cellgateCompletedTime = row.createCell(8) // Specify the column number where you want to insert the data
-				// cellgateCompletedTime.setCellValue(gateCompletedTimeformatted)
-				// println("Set value for column 8: " + gateCompletedTimeformatted)
-				
-			
+					println(appointmentNum + "unmatched" + laneAttribute + outLaneID)
+				}
 			}
-		}
+					
 		
-		//Thread.sleep(7000);
-		// WebUI.closeBrowser()
-		// DriverFactory.getWebDriver().quit()
+		
+			WebUI.delay(5)
+			//Thread.sleep(10000);
+			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedButton'), 10))
+			{
+				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedButton'))
+				
+				if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/outgateCompleted'), 120))
+					{
+				
+					//Get time After input gate visit no. before click proceed
+					// Get the current date and time
+					LocalDateTime gateCompletedTime = LocalDateTime.now()
+					
+					// Convert LocalDateTime to a string representation
+					String gateCompletedTimeformatted = gateCompletedTime.format(formatter)
+					
+					// Set the cell value
+					Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("gateCompletedTimeformatted", gateCompletedTimeformatted)
+					//Global.logDict[currentReportFilePath][appointmentNum] = ["gateCompletedTimeformatted": gateCompletedTimeformatted]
+					// Cell cellgateCompletedTime = row.createCell(8) // Specify the column number where you want to insert the data
+					// cellgateCompletedTime.setCellValue(gateCompletedTimeformatted)
+					// println("Set value for column 8: " + gateCompletedTimeformatted)
+					
+					
+					}
+				
+			}
+			
+			//Thread.sleep(7000);
+			WebUI.closeBrowser()
+			DriverFactory.getWebDriver().quit()
 
 	}
-
-	
-
 	// Ending a thread process, activeThreadCount decrement by 1
 	Global.activeThreadCount --;
 }
@@ -772,7 +617,7 @@ static List<String> getContainer() {
 	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_2'), 3))
 		{
 		container_2 =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_2'), "value")
-
+	
 		}
 	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_3'), 3))
 		{
@@ -781,6 +626,7 @@ static List<String> getContainer() {
 	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_4'), 3))
 		{
 		container_4 =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_4'), "value")
+	
 		}
 	
 	return Arrays.asList(container_1,container_2,container_3,container_4)
@@ -789,7 +635,7 @@ static List<String> getContainer() {
 
 
 
-static boolean waitUntilWithinTimeSlot(String startTimeString) {
+static boolean WaitUntilWithinTimeSlot(String startTimeString) {
 	// To format string to correct DateTime format "yyyy-MM-dd'T'HH:mm:ssXXX"
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
 	// Formatted startTime to the correct format
@@ -853,3 +699,7 @@ static int getRowNumber(String testDataName, int columnNumber) {
 	// Return -1 if the cell value is not found in any row
 	return totalRows
 }
+
+
+
+
