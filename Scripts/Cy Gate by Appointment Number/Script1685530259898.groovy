@@ -69,16 +69,17 @@ Runtime.getRuntime().exec('taskkill /im chrome.exe /f')
 // Attributes inside this Global class will be accessed throughout the code
 public class Global {
 	// Declare logDict as a global variable, used to store report logs, then later on insert it to report excels
-	private static Map<String, Map<String, Object>> logDict = new HashMap<>();
+	private synchronized static Map<String, Map<String, Object>> logDict = new HashMap<>();
 	// array to store data for outgate
-	private static List<Object> forOutgateDatas = [];
+	private synchronized static List<Object> forOutgateDatas = [];
+	
 	private static int forOutgateDatasCounter = 0;
 	// Use this to count how many threads is running(Both Lane and OutGate), used later on to only start putting value to report excels when all process is done.
 	private static int activeThreadCount = 0
 	private static int activeLaneThreadCount = 0
 
 	private static boolean ingateLoginIsLeft = true
-	private static WebDriver outgateDriver = null
+	
 }
 
 
@@ -170,7 +171,7 @@ for (gateEntry in Global.logDict.entrySet()) {
 			row.createCell(4).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(C' + rowNumberReport +'))), TEXT(D' + rowNumberReport +'-C' + rowNumberReport +', "hh:mm:ss"), "")');
 			row.createCell(6).setCellFormula('IF(AND(NOT(ISBLANK(F' + rowNumberReport + ')), NOT(ISBLANK(D' + rowNumberReport +'))), TEXT(F' + rowNumberReport +'-D' + rowNumberReport +', "hh:mm:ss"), "")');
 			row.createCell(9).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(H' + rowNumberReport +'))), TEXT(I' + rowNumberReport +'-H' + rowNumberReport +', "hh:mm:ss"), "")');
-			row.createCell(10).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(C' + rowNumberReport +'))), TEXT(I' + rowNumberReport +'-C' + rowNumberReport +', "hh:mm:ss"), "")');
+			//row.createCell(10).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(C' + rowNumberReport +'))), TEXT(I' + rowNumberReport +'-C' + rowNumberReport +', "hh:mm:ss"), "")');
 			// If has gateVisit in dictionary, then retrieve data from dictionary, lastly insert it to report excel, same process with other datas below
 			if (appointmentData.containsKey("gateVisit")) {
 				String gateVisit = appointmentData["gateVisit"]
@@ -215,8 +216,7 @@ for (gateEntry in Global.logDict.entrySet()) {
 }
 
 println ("Done inserting all report logs")
-//Configuration ends here
-//----------------------------------------------------------------------------------------------------------
+
 
 //Functions
 //----------------------------------------------------------------------------------------------------------
@@ -536,6 +536,10 @@ static void outGateBrowser(String sheetName){
 			}
 		}
 
+        println ("Global.forOutgateDatasCounter " + Global.forOutgateDatasCounter)
+        println ("Global.forOutgateDatas " + Global.forOutgateDatas.size())
+		println (Global.forOutgateDatas)
+
 		Thread.sleep(10000);
 	}
 	WebUI.closeBrowser()
@@ -631,7 +635,8 @@ static void outGate(String currentReportFilePath, String appointmentNum, String 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss")
 		String gateVisitInputTimeformatted = gateVisitInputTime.format(formatter)
 		Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("gateVisitInputTimeformatted", gateVisitInputTimeformatted)
-		
+		println("Before Insert gateVisitInputTime " + gateVisitInputTime)
+		println("Inserted gateVisitInputTimeformatted " + gateVisitInputTimeformatted)
 		
 		
 		
@@ -647,7 +652,7 @@ static void outGate(String currentReportFilePath, String appointmentNum, String 
 								while (!laneNumValue.isEmpty()) {
 									WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.BACK_SPACE))
 									laneNumValue = laneNumValue.substring(0, laneNumValue.length() - 1);
-								}	
+								}
 							}
 									WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), outLaneID.get(0));
 									
@@ -722,6 +727,10 @@ static void outGate(String currentReportFilePath, String appointmentNum, String 
 				
 				// Set the cell value
 				Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("gateCompletedTimeformatted", gateCompletedTimeformatted)
+
+				println("Before Insert gateCompletedTime " + gateCompletedTime)
+				println("Inserted gateCompletedTimeformatted " + gateCompletedTimeformatted)
+
 				//Global.logDict[currentReportFilePath][appointmentNum] = ["gateCompletedTimeformatted": gateCompletedTimeformatted]
 				// Cell cellgateCompletedTime = row.createCell(8) // Specify the column number where you want to insert the data
 				// cellgateCompletedTime.setCellValue(gateCompletedTimeformatted)
@@ -740,7 +749,7 @@ static void outGate(String currentReportFilePath, String appointmentNum, String 
 	
 
 	// Ending a thread process, activeThreadCount decrement by 1
-	Global.activeThreadCount --;
+	
 }
 
 

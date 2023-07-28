@@ -1,0 +1,37 @@
+Sub createCSV()
+    Dim filePath As String
+    Dim FileName As String
+    Dim wb As Workbook
+    Dim SheetName As String
+    Dim FileNameRange As Range
+    
+    
+    
+        ' Set the worksheet name and range for the file name
+    SheetName = "Sheet1"
+    Set FileNameRange = ThisWorkbook.Worksheets("Main").Range("B77")
+    
+    
+    ' Get the file name from the cell
+    FileName = FileNameRange.value
+    
+    ' Get the file path of the current workbook
+    filePath = ThisWorkbook.Path
+    
+    ' Create a new workbook and set the value of cell A1
+    Set wb = Workbooks.Add
+    
+    
+    ' Add column names to the new workbook
+    
+    Call createBatchAppointmentTemplate(wb)
+    
+    
+    ' Save the workbook as a CSV file
+    wb.SaveAs FileName:=filePath & "\" & FileName, FileFormat:=xlCSV, CreateBackup:=False
+    
+    ' Close the workbook
+    wb.Close False
+    
+    
+End Sub
