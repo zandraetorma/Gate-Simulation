@@ -169,8 +169,8 @@ for (gateEntry in Global.logDict.entrySet()) {
 			int rowNumberReport = rowNumber + 1
 			
 			row.createCell(4).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(C' + rowNumberReport +'))), TEXT(D' + rowNumberReport +'-C' + rowNumberReport +', "hh:mm:ss"), "")');
-			row.createCell(6).setCellFormula('IF(AND(NOT(ISBLANK(F' + rowNumberReport + ')), NOT(ISBLANK(D' + rowNumberReport +'))), TEXT(F' + rowNumberReport +'-D' + rowNumberReport +', "hh:mm:ss"), "")');
-			row.createCell(9).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(H' + rowNumberReport +'))), TEXT(I' + rowNumberReport +'-H' + rowNumberReport +', "hh:mm:ss"), "")');
+			row.createCell(7).setCellFormula('IF(AND(NOT(ISBLANK(F' + rowNumberReport + ')), NOT(ISBLANK(D' + rowNumberReport +'))), TEXT(F' + rowNumberReport +'-D' + rowNumberReport +', "hh:mm:ss"), "")');
+			row.createCell(10).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(H' + rowNumberReport +'))), TEXT(I' + rowNumberReport +'-H' + rowNumberReport +', "hh:mm:ss"), "")');
 			//row.createCell(10).setCellFormula('IF(AND(NOT(ISBLANK(D' + rowNumberReport + ')), NOT(ISBLANK(C' + rowNumberReport +'))), TEXT(I' + rowNumberReport +'-C' + rowNumberReport +', "hh:mm:ss"), "")');
 			// If has gateVisit in dictionary, then retrieve data from dictionary, lastly insert it to report excel, same process with other datas below
 			if (appointmentData.containsKey("gateVisit")) {
@@ -178,31 +178,36 @@ for (gateEntry in Global.logDict.entrySet()) {
 				row.createCell(1).setCellValue(gateVisit)
 			}
 		
-			if (appointmentData.containsKey("appInputTimeFormatted")) {
-				String appInputTimeFormatted = appointmentData["appInputTimeFormatted"]
-				row.createCell(2).setCellValue(appInputTimeFormatted)
+			if (appointmentData.containsKey("proceedCreateVisitTimeFormatted")) {
+				String proceedCreateVisitTimeFormatted = appointmentData["proceedCreateVisitTimeFormatted"]
+				row.createCell(2).setCellValue(proceedCreateVisitTimeFormatted)
 			}
 	
-			if (appointmentData.containsKey("preInGateTimeFormatted")) {
-				String preInGateTimeFormatted = appointmentData["preInGateTimeFormatted"]
-				row.createCell(3).setCellValue(preInGateTimeFormatted)
-			}
-	
-	
-			if (appointmentData.containsKey("toGroundPickTimeFormatted")) {
-				String toGroundPickTimeFormatted = appointmentData["toGroundPickTimeFormatted"]
-				row.createCell(5).setCellValue(toGroundPickTimeFormatted)
+			if (appointmentData.containsKey("gateVisitCreationTimeFormatted")) {
+				String gateVisitCreationTimeFormatted = appointmentData["gateVisitCreationTimeFormatted"]
+				row.createCell(3).setCellValue(gateVisitCreationTimeFormatted)
 			}
 	
 	
-			if (appointmentData.containsKey("gateVisitInputTimeformatted")) {
-				String gateVisitInputTimeformatted = appointmentData["gateVisitInputTimeformatted"]
-				row.createCell(7).setCellValue(gateVisitInputTimeformatted)
+			if (appointmentData.containsKey("proceedToInGateTimeFormatted")) {
+				String proceedToInGateTimeFormatted = appointmentData["proceedToInGateTimeFormatted"]
+				row.createCell(5).setCellValue(proceedToInGateTimeFormatted)
+			}
+			
+			if (appointmentData.containsKey("reachInGateTimeFormatted")) {
+				String reachInGateTimeFormatted = appointmentData["reachInGateTimeFormatted"]
+				row.createCell(6).setCellValue(reachInGateTimeFormatted)
 			}
 	
-			if (appointmentData.containsKey("gateCompletedTimeformatted")) {
-				String gateCompletedTimeformatted = appointmentData["gateCompletedTimeformatted"]
-				row.createCell(8).setCellValue(gateCompletedTimeformatted)
+	
+			if (appointmentData.containsKey("proceedToCompleteTimeformatted")) {
+				String proceedToCompleteTimeformatted = appointmentData["proceedToCompleteTimeformatted"]
+				row.createCell(8).setCellValue(proceedToCompleteTimeformatted)
+			}
+	
+			if (appointmentData.containsKey("reachCompleteTimeformatted")) {
+				String reachCompleteTimeformatted = appointmentData["reachCompleteTimeformatted"]
+				row.createCell(9).setCellValue(reachCompleteTimeformatted)
 			}
 		}
 	}
@@ -283,17 +288,7 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 			WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), Keys.chord(Keys.DOWN))
 			WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), Keys.chord(Keys.ENTER))
 			
-			//Get time After input appointment no. , before click proceed to Pre In Gate
-			// Get the current date and time
-			LocalDateTime appInputTime = LocalDateTime.now()
 			
-			
-			// Convert LocalDateTime to a string representation
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss")
-			String appInputTimeFormatted = appInputTime.format(formatter)
-			
-			// Update dictionary inside of current appointmentNum key with "appInputTimeFormatted" value
-			Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("appInputTimeFormatted", appInputTimeFormatted)
 			
 			while(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_1'), 20) == false)
 			{
@@ -307,37 +302,70 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 			}
 			WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedButton'))
 			
-			//Get time After click proceed to Pre In Gate, going to In Gate
-			// Get the current date and time
-			LocalDateTime preInGateTime = LocalDateTime.now()
-
-			// Convert LocalDateTime to a string representation
-			String preInGateTimeFormatted = preInGateTime.format(formatter)
 			
-			// Update dictionary inside of current appointmentNum key with "preInGateTimeFormatted" value
-			Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("preInGateTimeFormatted", preInGateTimeFormatted)
+			//Get time after clicking proceed to create gate visit
+			// Get the current date and time
+			LocalDateTime proceedCreateVisitTime = LocalDateTime.now()
+			
+			
+			// Convert LocalDateTime to a string representation
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss")
+			// Convert LocalDateTime to a string representation
+			String proceedCreateVisitTimeFormatted = proceedCreateVisitTime.format(formatter)
+			
+			// Update dictionary inside of current appointmentNum key with "proceedCreateVisitTimeFormatted" value
+			Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("proceedCreateVisitTimeFormatted", proceedCreateVisitTimeFormatted)
+			
 
 
 			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedInGateButton'), 120))
 					{
-						WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedInGateButton'))
 						
-						//Get time when ready To Ground/Pick
+						
+						//Get time when gate visit is created
 						// Get the current date and time
-						LocalDateTime toGroundPickTime = LocalDateTime.now()
+						LocalDateTime gateVisitCreationTime = LocalDateTime.now()
 						
 						// Convert LocalDateTime to a string representation
-						String toGroundPickTimeFormatted = toGroundPickTime.format(formatter)
+						String gateVisitCreationTimeFormatted = gateVisitCreationTime.format(formatter)
 						
-						// Update dictionary inside of current appointmentNum key with "toGroundPickTimeFormatted" value
-						Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("toGroundPickTimeFormatted", toGroundPickTimeFormatted)
-
+						// Update dictionary inside of current appointmentNum key with "gateVisitCreationTimeFormatted" value
+						Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("gateVisitCreationTimeFormatted", gateVisitCreationTimeFormatted)
+						
+						
+						WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedInGateButton'))
+						
+						
+						//Get time after clicking proceed to in gate stage
+						// Get the current date and time
+						LocalDateTime proceedToInGateTime = LocalDateTime.now()
+						
+						// Convert LocalDateTime to a string representation
+						String proceedToInGateTimeFormatted = proceedToInGateTime.format(formatter)
+						
+						// Update dictionary inside of current appointmentNum key with "gateVisitCreationTimeFormatted" value
+						Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("proceedToInGateTimeFormatted", proceedToInGateTimeFormatted)
+						
+						if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/disabledOutGateButton'), 120))
+							{
+								//Get time after when reachin in gate
+								// Get the current date and time
+								LocalDateTime reachInGateTime = LocalDateTime.now()
+								
+								// Convert LocalDateTime to a string representation
+								String reachInGateTimeFormatted = reachInGateTime.format(formatter)
+								
+								// Update dictionary inside of current appointmentNum key with "gateVisitCreationTimeFormatted" value
+								Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("reachInGateTimeFormatted", reachInGateTimeFormatted)
+								
+						}
+						
 						//WebUI.delay(3)
 						Thread.sleep(3000);
+						
 						String gateVisit =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), "value")
 	
-						// Update dictionary inside of current appointmentNum key with "gateVisit" value
-						Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("gateVisit", gateVisit)
+						
 						
 						List<String> containers = getContainer();
 						List<String> containerList = new ArrayList<String>();
@@ -627,16 +655,6 @@ static void outGate(String currentReportFilePath, String appointmentNum, String 
 		WebUI.delay(1)
 		WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), Keys.chord(Keys.DOWN))
 		WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), Keys.chord(Keys.ENTER))
-				//Get time After input gate visit no. before click proceed
-		// Get the current date and time
-		LocalDateTime gateVisitInputTime = LocalDateTime.now()
-		
-		// Convert LocalDateTime to a string representation
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss")
-		String gateVisitInputTimeformatted = gateVisitInputTime.format(formatter)
-		Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("gateVisitInputTimeformatted", gateVisitInputTimeformatted)
-		println("Before Insert gateVisitInputTime " + gateVisitInputTime)
-		println("Inserted gateVisitInputTimeformatted " + gateVisitInputTimeformatted)
 		
 		
 		
@@ -716,20 +734,27 @@ static void outGate(String currentReportFilePath, String appointmentNum, String 
 		{
 			WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedButton'))
 			
+			
+			//Get time After click proceed to out gate
+			// Get the current date and time
+			LocalDateTime proceedToCompleteTime = LocalDateTime.now()
+			
+			// Convert LocalDateTime to a string representation
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss")
+			String proceedToCompleteTimeformatted = proceedToCompleteTime.format(formatter)
+			Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("proceedToCompleteTimeformatted", proceedToCompleteTimeformatted)
+			
 			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/outgateCompleted'), 120)){
 			
 				//Get time After input gate visit no. before click proceed
 				// Get the current date and time
-				LocalDateTime gateCompletedTime = LocalDateTime.now()
+				LocalDateTime reachCompleteTime = LocalDateTime.now()
 				
 				// Convert LocalDateTime to a string representation
-				String gateCompletedTimeformatted = gateCompletedTime.format(formatter)
+				String reachCompleteTimeformatted = reachCompleteTime.format(formatter)
 				
 				// Set the cell value
-				Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("gateCompletedTimeformatted", gateCompletedTimeformatted)
-
-				println("Before Insert gateCompletedTime " + gateCompletedTime)
-				println("Inserted gateCompletedTimeformatted " + gateCompletedTimeformatted)
+				Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("reachCompleteTimeformatted", reachCompleteTimeformatted)
 
 				//Global.logDict[currentReportFilePath][appointmentNum] = ["gateCompletedTimeformatted": gateCompletedTimeformatted]
 				// Cell cellgateCompletedTime = row.createCell(8) // Specify the column number where you want to insert the data
@@ -748,7 +773,6 @@ static void outGate(String currentReportFilePath, String appointmentNum, String 
 
 	
 
-	// Ending a thread process, activeThreadCount decrement by 1
 	
 }
 

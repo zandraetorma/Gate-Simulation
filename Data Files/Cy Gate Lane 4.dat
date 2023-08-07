@@ -6,11 +6,11 @@
    <containsHeaders>true</containsHeaders>
    <csvSeperator></csvSeperator>
    <dataFileGUID>9390301e-d79c-4746-bd61-e02a9cb1d141</dataFileGUID>
-   <dataSourceUrl>C:\Katalon Automation Tool\Gate-Simulation\Test Data\CY Gate Lane 4.xlsx</dataSourceUrl>
+   <dataSourceUrl>Test Data/CY Gate Lane 4.xlsx</dataSourceUrl>
    <driver>ExcelFile</driver>
-   <isInternalPath>false</isInternalPath>
+   <isInternalPath>true</isInternalPath>
    <query></query>
    <secureUserAccount>false</secureUserAccount>
-   <sheetName>Sheet1</sheetName>
+   <sheetName></sheetName>
    <usingGlobalDBSetting>false</usingGlobalDBSetting>
 </DataFileEntity>
