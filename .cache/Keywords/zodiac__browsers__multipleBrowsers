@@ -1,0 +1,14 @@
+{
+  "keywordFileContentHash": "10D774A4DE02EC70A8B918C0641EFA34",
+  "keywordClasses": [
+    {
+      "name": "zodiac.browsers.Global",
+      "keywordMethods": []
+    },
+    {
+      "name": "zodiac.browsers.multipleBrowsers",
+      "keywordMethods": []
+    }
+  ],
+  "javadocParsed": true
+}

@@ -215,17 +215,17 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 	if(firstData)
 	{
 		Login(laneTestData);
-		WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), laneID)
+		WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNum'), laneID)
 		
 		// Will continuous downkey until lane value matches
 		while (true) {
-			WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.DOWN))
-			String laneAttribute =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNumSuggest'), "aria-label")
+			WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNum'), Keys.chord(Keys.DOWN))
+			String laneAttribute =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNumSuggest'), "aria-label")
 			
 			// Get current selected value
 			if(laneID == laneAttribute)
 			{
-				WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.ENTER))
+				WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNum'), Keys.chord(Keys.ENTER))
 				break;
 			}
 		  }
@@ -260,11 +260,11 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 			println(appointmentNum + " create started, not expired")
 			String timeWaitInMin  = findTestData(laneTestData).getValue(12,i)
 			
-			WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), appointmentNum)
+			WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_appointmentNum'), appointmentNum)
 			//WebUI.delay(2)
 			Thread.sleep(2000);
-			WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), Keys.chord(Keys.DOWN))
-			WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), Keys.chord(Keys.ENTER))
+			WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_appointmentNum'), Keys.chord(Keys.DOWN))
+			WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_appointmentNum'), Keys.chord(Keys.ENTER))
 			
 			//Get time After input appointment no. , before click proceed to Pre In Gate
 			// Get the current date and time
@@ -278,17 +278,17 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 			// Update dictionary inside of current appointmentNum key with "appInputTimeFormatted" value
 			Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("appInputTimeFormatted", appInputTimeFormatted)
 			
-			while(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_1'), 20) == false)
+			while(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_container_1'), 20) == false)
 			{
-				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/clearButton'))
-				WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), appointmentNum)
+				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/btn_clear'))
+				WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_appointmentNum'), appointmentNum)
 				//WebUI.delay(2)
 				Thread.sleep(2000);
-				WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), Keys.chord(Keys.DOWN))
-				WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/appointmentNum'), Keys.chord(Keys.ENTER))
+				WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_appointmentNum'), Keys.chord(Keys.DOWN))
+				WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_appointmentNum'), Keys.chord(Keys.ENTER))
 
 			}
-			WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedButton'))
+			WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/btn_proceed'))
 			
 			//Get time After click proceed to Pre In Gate, going to In Gate
 			// Get the current date and time
@@ -301,9 +301,9 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 			Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("preInGateTimeFormatted", preInGateTimeFormatted)
 
 
-			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedInGateButton'), 120))
+			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/btn_proceedInGate'), 120))
 					{
-						WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedInGateButton'))
+						WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/btn_proceedInGate'))
 						
 						//Get time when ready To Ground/Pick
 						// Get the current date and time
@@ -317,7 +317,7 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 
 						//WebUI.delay(3)
 						Thread.sleep(3000);
-						String gateVisit =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), "value")
+						String gateVisit =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_gateVisitNum'), "value")
 	
 						// Update dictionary inside of current appointmentNum key with "gateVisit" value
 						Global.logDict.getAt(currentReportFilePath).getAt(appointmentNum).putAt("gateVisit", gateVisit)
@@ -372,7 +372,7 @@ static void Lane(String laneID, String laneTestData, String laneType, ArrayList<
 
 					}
 					
-				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/clearButton'))
+				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/btn_clear'))
 				
 				// if isError is False, only will apply delay for time wait in minute
 				if (isError == false)
@@ -396,22 +396,22 @@ static void Login(laneTestData) {
 	WebUI.openBrowser('')
 	WebUI.navigateToUrl(findTestData(laneTestData).getValue(2, 3))
 	WebUI.maximizeWindow()
-	if(WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/chromeAdvancedButton'), 3, FailureHandling.OPTIONAL))
+	if(WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/btn_chromeAdvanced'), 3, FailureHandling.OPTIONAL))
 		{
-			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/chromeAdvancedButton'))
-			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/chromeProceedToSite'))
+			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/btn_chromeAdvanced'))
+			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/btn_chromeProceedToSite'))
 			WebUI.delay(2)
 		
-			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/Login/acceptCookiesButton'), 20))
+			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/Login/btn_acceptCookies'), 20))
 				{
-					WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/acceptCookiesButton'))
+					WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/btn_acceptCookies'))
 				}
 			
 			
-			WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/Username'), findTestData(laneTestData).getValue(2, 1))
-			WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/Password'), findTestData(laneTestData).getValue(2, 2))
-			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/loginSubmit'))
-			WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/homePage'), 60)
+			WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/inp_username'), findTestData(laneTestData).getValue(2, 1))
+			WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/inp_password'), findTestData(laneTestData).getValue(2, 2))
+			WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/btn_loginSubmit'))
+			WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/txt_homePage'), 60)
 			WebUI.navigateToUrl(findTestData(laneTestData).getValue(2, 4))
 			WebUI.waitForPageLoad(100)
 	
@@ -422,10 +422,10 @@ static void Login(laneTestData) {
 		
 	else
 		{
-		WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/Username'), findTestData(laneTestData).getValue(2, 1))
-		WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/Password'), findTestData(laneTestData).getValue(2, 2))
-		WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/loginSubmit'))
-		WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/homePage'), 60)
+		WebUI.setText(findTestObject('Object Repository/Gate Simulation/Login/inp_username'), findTestData(laneTestData).getValue(2, 1))
+		WebUI.setEncryptedText(findTestObject('Object Repository/Gate Simulation/Login/inp_password'), findTestData(laneTestData).getValue(2, 2))
+		WebUI.click(findTestObject('Object Repository/Gate Simulation/Login/btn_loginSubmit'))
+		WebUI.verifyElementPresent(findTestObject('Object Repository/Gate Simulation/Login/txt_homePage'), 60)
 		WebUI.navigateToUrl(findTestData(laneTestData).getValue(2, 4))
 		WebUI.waitForPageLoad(100)
 		}
@@ -510,10 +510,10 @@ static void OutGate(String currentReportFilePath, String appointmentNum, String 
 	if (isIM == true) {
 	// Open browser if log file is found
 		Login(laneTestData);
-		WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), gateVisit)
+		WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_gateVisitNum'), gateVisit)
 		WebUI.delay(1)
-		WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), Keys.chord(Keys.DOWN))
-		WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/gateVisitNum'), Keys.chord(Keys.ENTER))
+		WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_gateVisitNum'), Keys.chord(Keys.DOWN))
+		WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_gateVisitNum'), Keys.chord(Keys.ENTER))
 		
 		
 		
@@ -539,18 +539,18 @@ static void OutGate(String currentReportFilePath, String appointmentNum, String 
 		if (laneType == "IN")
 			{
 				Collections.shuffle(outLaneID);
-				WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), outLaneID.get(0));
+				WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNum'), outLaneID.get(0));
 				
 				while (true) {
-					WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.DOWN))
-					String laneAttribute =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNumSuggest'), "aria-label")
+					WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNum'), Keys.chord(Keys.DOWN))
+					String laneAttribute =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNumSuggest'), "aria-label")
 					//WebUI.delay(2)
 					Thread.sleep(2000);
 					// Get current selected value
 	
 					if(outLaneID.get(0) == laneAttribute)
 					{
-						WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.ENTER))
+						WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNum'), Keys.chord(Keys.ENTER))
 						println(appointmentNum + "matched" + laneAttribute + outLaneID)
 						break;
 					}
@@ -561,18 +561,18 @@ static void OutGate(String currentReportFilePath, String appointmentNum, String 
 		else
 			{
 				
-				WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), laneID);
+				WebUI.setText(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNum'), laneID);
 				
 				while (true) {
-					WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.DOWN))
-					String laneAttribute =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNumSuggest'), "aria-label")
+					WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNum'), Keys.chord(Keys.DOWN))
+					String laneAttribute =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNumSuggest'), "aria-label")
 					//WebUI.delay(2)
 					Thread.sleep(2000);
 					// Get current selected value
 	
 					if(laneID == laneAttribute)
 					{
-						WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/laneNum'), Keys.chord(Keys.ENTER))
+						WebUI.sendKeys(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_laneNum'), Keys.chord(Keys.ENTER))
 						println(appointmentNum + "matched" + laneAttribute + laneID)
 						break;
 					}
@@ -584,11 +584,11 @@ static void OutGate(String currentReportFilePath, String appointmentNum, String 
 		
 			//WebUI.delay(5)
 			Thread.sleep(10000);
-			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedButton'), 20))
+			if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/btn_proceed'), 20))
 			{
-				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/proceedButton'))
+				WebUI.click(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/btn_proceed'))
 				
-				if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/outgateCompleted'), 120))
+				if (isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/txt_outgateCompleted'), 120))
 					{
 				
 					//Get time After input gate visit no. before click proceed
@@ -639,23 +639,23 @@ static List<String> getContainer() {
 	String container_3 = "";
 	String container_4 = "";
 
-	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_1'), 3))
+	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_container_1'), 3))
 		{
-		container_1 =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_1'), "value")
+		container_1 =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_container_1'), "value")
 
 		}
-	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_2'), 3))
+	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_container_2'), 3))
 		{
-		container_2 =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_2'), "value")
+		container_2 =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_container_2'), "value")
 	
 		}
-	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_3'), 3))
+	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_container_3'), 3))
 		{
-		container_3 =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_3'), "value")
+		container_3 =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_container_3'), "value")
 		}
-	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_4'), 3))
+	if(isElementPresent(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_container_4'), 3))
 		{
-		container_4 =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/container_4'), "value")
+		container_4 =  WebUI.getAttribute(findTestObject('Object Repository/Gate Simulation/CY Gate by Appointment/inp_container_4'), "value")
 	
 		}
 	

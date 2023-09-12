@@ -1,0 +1,14 @@
+{
+  "keywordFileContentHash": "544A8F651EE5427318E374FB52CB029B",
+  "keywordClasses": [
+    {
+      "name": "zodiac.katalon.automation.Utility.Global",
+      "keywordMethods": []
+    },
+    {
+      "name": "zodiac.katalon.automation.Utility.multipleBrowsers",
+      "keywordMethods": []
+    }
+  ],
+  "javadocParsed": true
+}
